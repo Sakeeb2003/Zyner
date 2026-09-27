@@ -618,6 +618,65 @@ if (modalBookBtn) {
 }
 
 /* ================================================
+   FEATURED PACKAGE MODAL FUNCTIONALITY
+================================================ */
+const packageViewBtn      = document.getElementById('package-view-btn');
+const packageModal        = document.getElementById('package-modal');
+const packageModalOverlay = document.getElementById('package-modal-overlay');
+const packageModalClose   = document.getElementById('package-modal-close-btn');
+const packageModalCancel  = document.getElementById('package-modal-cancel-btn');
+const packageBookNowBtn   = document.getElementById('package-book-now-btn');
+
+function openPackageModal() {
+  if (!packageModal) return;
+  packageModal.classList.add('open');
+  packageModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePackageModal() {
+  if (!packageModal) return;
+  packageModal.classList.remove('open');
+  packageModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+if (packageViewBtn) {
+  packageViewBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    openPackageModal();
+  });
+}
+
+if (packageModalClose)   packageModalClose.addEventListener('click', closePackageModal);
+if (packageModalOverlay) packageModalOverlay.addEventListener('click', closePackageModal);
+if (packageModalCancel)  packageModalCancel.addEventListener('click', closePackageModal);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && packageModal && packageModal.classList.contains('open')) {
+    closePackageModal();
+  }
+});
+
+if (packageBookNowBtn) {
+  packageBookNowBtn.addEventListener('click', () => {
+    closePackageModal();
+    const destInput = document.getElementById('destination');
+    if (destInput) {
+      destInput.value = 'Maldives (7 Days Paradise Escape)';
+      destInput.focus();
+    }
+    const searchSection = document.getElementById('search');
+    if (searchSection) {
+      const navH = navbar ? navbar.offsetHeight : 80;
+      const top  = searchSection.getBoundingClientRect().top + window.scrollY - navH;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+    showToast('🏝️ Featured Package Selected: <strong>Maldives Escape ($899/person)</strong>. Choose your travel date & travelers!', 'success', 4500);
+  });
+}
+
+/* ================================================
    DESTINATION CARD KEYBOARD ACCESSIBILITY
 ================================================ */
 destCards.forEach((card) => {
