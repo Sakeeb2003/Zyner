@@ -1985,6 +1985,10 @@ a:focus-visible {
 .destinations-grid .destination-card.reveal:nth-child(2) { transition-delay: 80ms; }
 .destinations-grid .destination-card.reveal:nth-child(3) { transition-delay: 160ms; }
 .destinations-grid .destination-card.reveal:nth-child(4) { transition-delay: 240ms; }
+.destinations-grid .destination-card.reveal:nth-child(5) { transition-delay: 320ms; }
+.destinations-grid .destination-card.reveal:nth-child(6) { transition-delay: 400ms; }
+.destinations-grid .destination-card.reveal:nth-child(7) { transition-delay: 480ms; }
+.destinations-grid .destination-card.reveal:nth-child(8) { transition-delay: 560ms; }
 
 .why-grid .why-card.reveal:nth-child(1) { transition-delay: 0ms; }
 .why-grid .why-card.reveal:nth-child(2) { transition-delay: 100ms; }
