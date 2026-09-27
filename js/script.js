@@ -166,9 +166,10 @@ window.addEventListener('scroll', onScroll, { passive: true });
 onScroll(); // Run on page load
 
 /* ================================================
-   5. DESTINATION CATEGORY FILTERING & PAGINATION
+   5. DESTINATION CATEGORY FILTERING & SEARCH
 ================================================ */
 let activeFilter = 'all';
+let searchQuery  = '';
 const BATCH_SIZE = 8;
 let visibleLimit = BATCH_SIZE;
 
@@ -177,11 +178,20 @@ const loadMoreBtn  = document.getElementById('load-more-btn');
 
 function updateDestinationVisibility() {
   let matchingCards = [];
+  const q = searchQuery.trim().toLowerCase();
 
   destCards.forEach((card) => {
-    const category = card.getAttribute('data-category');
-    const matches  = activeFilter === 'all' || category === activeFilter;
-    if (matches) {
+    const category = (card.getAttribute('data-category') || '').toLowerCase();
+    const title    = (card.querySelector('.card-title')?.textContent || '').toLowerCase();
+    const location = (card.querySelector('.card-location')?.textContent || '').toLowerCase();
+
+    // Category filter check
+    const matchesCategory = activeFilter === 'all' || category === activeFilter.toLowerCase();
+
+    // Search query check
+    const matchesSearch = q === '' || title.includes(q) || location.includes(q) || category.includes(q);
+
+    if (matchesCategory && matchesSearch) {
       matchingCards.push(card);
     } else {
       card.classList.add('filtered-out');
@@ -191,7 +201,13 @@ function updateDestinationVisibility() {
 
   let visibleCount = 0;
   matchingCards.forEach((card, index) => {
-    if (activeFilter === 'all') {
+    if (q !== '' || activeFilter !== 'all') {
+      // Show all search or category results directly
+      card.classList.remove('filtered-out');
+      card.style.display = '';
+      visibleCount++;
+    } else {
+      // "All" tab with no search query -> paginated by visibleLimit
       if (index < visibleLimit) {
         card.classList.remove('filtered-out');
         card.style.display = '';
@@ -200,27 +216,38 @@ function updateDestinationVisibility() {
         card.classList.add('filtered-out');
         card.style.display = 'none';
       }
-    } else {
-      // Category filter shows all matching cards for that category
-      card.classList.remove('filtered-out');
-      card.style.display = '';
-      visibleCount++;
     }
   });
 
   // Toggle No Results message
   if (noResults) {
-    visibleCount === 0 ? noResults.classList.remove('hidden') : noResults.classList.add('hidden');
+    if (visibleCount === 0) {
+      noResults.classList.remove('hidden');
+      const p = noResults.querySelector('p');
+      if (p) {
+        p.innerHTML = q !== '' 
+          ? `No destinations found matching "<strong>${escapeHTML(searchQuery)}</strong>". Try searching for Ella, Maldives, Dubai, Beach, or Japan.`
+          : `No destinations found for this category.`;
+      }
+    } else {
+      noResults.classList.add('hidden');
+    }
   }
 
   // Toggle Show More button
   if (loadMoreWrap) {
-    if (activeFilter === 'all' && visibleLimit < matchingCards.length) {
+    if (activeFilter === 'all' && q === '' && visibleLimit < matchingCards.length) {
       loadMoreWrap.classList.remove('hidden');
     } else {
       loadMoreWrap.classList.add('hidden');
     }
   }
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>'"]/g, 
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
 }
 
 function filterDestinations(filterValue) {
@@ -320,9 +347,13 @@ if (searchForm) {
     e.preventDefault();
 
     if (validateSearchForm()) {
-      const destination = document.getElementById('destination').value.trim();
-      const travelDate  = document.getElementById('travel-date').value;
-      const travelers   = document.getElementById('travelers').value;
+      const destinationVal = document.getElementById('destination').value.trim();
+      const travelDate     = document.getElementById('travel-date').value;
+      const travelers      = document.getElementById('travelers').value;
+
+      // Filter destinations grid by search query
+      searchQuery = destinationVal;
+      updateDestinationVisibility();
 
       // Format date
       const dateObj = new Date(travelDate);
@@ -333,7 +364,7 @@ if (searchForm) {
       });
 
       showToast(
-        `✈️ Searching trips to <strong>${destination}</strong> for ${dateStr} · ${travelers} traveler(s)...`,
+        `🔍 Showing search results for <strong>${destinationVal}</strong> · ${dateStr} · ${travelers} traveler(s)`,
         'success',
         4000
       );
@@ -346,9 +377,18 @@ if (searchForm) {
           const top  = destSection.getBoundingClientRect().top + window.scrollY - navH;
           window.scrollTo({ top, behavior: 'smooth' });
         }
-      }, 500);
+      }, 300);
     }
   });
+
+  // Real-time live search as user types in destination field
+  const destInputEl = document.getElementById('destination');
+  if (destInputEl) {
+    destInputEl.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      updateDestinationVisibility();
+    });
+  }
 
   // Real-time validation clearing on input
   const formInputs = searchForm.querySelectorAll('input, select');
