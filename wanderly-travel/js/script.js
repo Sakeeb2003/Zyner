@@ -320,22 +320,49 @@ if (searchForm) {
 /* ================================================
    7. SCROLL REVEAL ANIMATIONS (IntersectionObserver)
 ================================================ */
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed');
-        revealObserver.unobserve(entry.target); // Only trigger once
-      }
-    });
-  },
-  {
-    threshold: 0.12,
-    rootMargin: '0px 0px -40px 0px',
+function initScrollReveal() {
+  const elements = document.querySelectorAll('.reveal');
+  
+  if (!('IntersectionObserver' in window)) {
+    elements.forEach((el) => el.classList.add('revealed'));
+    return;
   }
-);
 
-revealEls.forEach((el) => revealObserver.observe(el));
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.01,
+      rootMargin: '100px 0px 100px 0px',
+    }
+  );
+
+  elements.forEach((el) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight + 100 && rect.bottom > -100) {
+      el.classList.add('revealed');
+    } else {
+      observer.observe(el);
+    }
+  });
+
+  // Safety fallback: reveal all elements after 500ms so nothing is ever permanently hidden
+  setTimeout(() => {
+    elements.forEach((el) => el.classList.add('revealed'));
+  }, 500);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initScrollReveal);
+} else {
+  initScrollReveal();
+}
 
 /* ================================================
    8. BACK TO TOP BUTTON
