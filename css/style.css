@@ -1148,10 +1148,12 @@ a:focus-visible {
 
 .why-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-6);
   position: relative;
   z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .why-card {
