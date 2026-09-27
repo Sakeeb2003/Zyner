@@ -166,41 +166,71 @@ window.addEventListener('scroll', onScroll, { passive: true });
 onScroll(); // Run on page load
 
 /* ================================================
-   5. DESTINATION CATEGORY FILTERING
+   5. DESTINATION CATEGORY FILTERING & PAGINATION
 ================================================ */
 let activeFilter = 'all';
+const BATCH_SIZE = 8;
+let visibleLimit = BATCH_SIZE;
 
-function filterDestinations(filterValue) {
-  activeFilter = filterValue;
-  let visibleCount = 0;
+const loadMoreWrap = document.getElementById('load-more-wrap');
+const loadMoreBtn  = document.getElementById('load-more-btn');
+
+function updateDestinationVisibility() {
+  let matchingCards = [];
 
   destCards.forEach((card) => {
     const category = card.getAttribute('data-category');
-    const matches = filterValue === 'all' || category === filterValue;
-
+    const matches  = activeFilter === 'all' || category === activeFilter;
     if (matches) {
-      card.classList.remove('filtered-out');
-      card.style.display = '';
-      visibleCount++;
+      matchingCards.push(card);
     } else {
       card.classList.add('filtered-out');
       card.style.display = 'none';
     }
   });
 
-  // Show / hide the no-results message
-  if (noResults) {
-    if (visibleCount === 0) {
-      noResults.classList.remove('hidden');
+  let visibleCount = 0;
+  matchingCards.forEach((card, index) => {
+    if (activeFilter === 'all') {
+      if (index < visibleLimit) {
+        card.classList.remove('filtered-out');
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.classList.add('filtered-out');
+        card.style.display = 'none';
+      }
     } else {
-      noResults.classList.add('hidden');
+      // Category filter shows all matching cards for that category
+      card.classList.remove('filtered-out');
+      card.style.display = '';
+      visibleCount++;
+    }
+  });
+
+  // Toggle No Results message
+  if (noResults) {
+    visibleCount === 0 ? noResults.classList.remove('hidden') : noResults.classList.add('hidden');
+  }
+
+  // Toggle Show More button
+  if (loadMoreWrap) {
+    if (activeFilter === 'all' && visibleLimit < matchingCards.length) {
+      loadMoreWrap.classList.remove('hidden');
+    } else {
+      loadMoreWrap.classList.add('hidden');
     }
   }
 }
 
+function filterDestinations(filterValue) {
+  activeFilter = filterValue;
+  visibleLimit = BATCH_SIZE; // reset pagination limit when changing tabs
+  updateDestinationVisibility();
+}
+
 filterBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
-    // Update active state
     filterBtns.forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
 
@@ -208,6 +238,21 @@ filterBtns.forEach((btn) => {
     filterDestinations(filter);
   });
 });
+
+if (loadMoreBtn) {
+  loadMoreBtn.addEventListener('click', () => {
+    visibleLimit += BATCH_SIZE;
+    updateDestinationVisibility();
+
+    // Trigger scroll reveal for newly visible elements
+    if (typeof initScrollReveal === 'function') {
+      setTimeout(initScrollReveal, 50);
+    }
+  });
+}
+
+// Initial invocation on script load
+updateDestinationVisibility();
 
 /* ================================================
    6. TRIP SEARCH FORM VALIDATION

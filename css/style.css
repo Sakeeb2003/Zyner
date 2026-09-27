@@ -1100,6 +1100,48 @@ a:focus-visible {
 .price-amount { font-family: var(--font-heading); font-size: var(--fs-lg); font-weight: 800; color: var(--clr-primary); }
 .price-unit { font-size: var(--fs-xs); color: var(--clr-text-muted); }
 
+/* Load More Button */
+.load-more-wrap {
+  text-align: center;
+  margin-top: var(--space-12);
+  transition: opacity var(--duration-base) var(--ease);
+}
+
+.load-more-wrap.hidden {
+  display: none !important;
+}
+
+.load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.85rem 2.25rem;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border: 2px solid var(--clr-primary);
+  color: var(--clr-primary);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease);
+}
+
+.load-more-btn:hover {
+  background: var(--clr-primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.load-more-btn i {
+  font-size: 0.85rem;
+  transition: transform var(--duration-base) var(--ease);
+}
+
+.load-more-btn:hover i {
+  transform: translateY(3px);
+}
+
 /* No Results */
 .no-results {
   text-align: center;
