@@ -426,15 +426,161 @@ if (newsletterForm) {
 }
 
 /* ================================================
+   EXPLORE MODAL FUNCTIONALITY
+================================================ */
+const exploreModal     = document.getElementById('explore-modal');
+const modalOverlay     = document.getElementById('modal-overlay');
+const modalCloseBtn    = document.getElementById('modal-close-btn');
+const modalCancelBtn   = document.getElementById('modal-cancel-btn');
+const modalBookBtn     = document.getElementById('modal-book-btn');
+
+const modalImg         = document.getElementById('modal-img');
+const modalCategory    = document.getElementById('modal-category');
+const modalRating      = document.getElementById('modal-rating');
+const modalTitle       = document.getElementById('modal-title');
+const modalLocation    = document.getElementById('modal-location');
+const modalPrice       = document.getElementById('modal-price');
+const modalDesc        = document.getElementById('modal-desc');
+const modalHighlights  = document.getElementById('modal-highlights');
+
+let currentDestinationName = '';
+
+const destinationDescriptions = {
+  Nature: {
+    desc: 'Immerse yourself in wild landscapes, pristine natural scenery, crystal-clear waters, and peaceful eco-sanctuaries. A true paradise for nature lovers.',
+    highlights: [
+      'Guided Eco & Forest Tours',
+      'Scenic Nature Trails & Photography',
+      'Sustainable Eco-Resort Stay',
+      'Local Wildlife Encounters'
+    ]
+  },
+  Beach: {
+    desc: 'Relax on sun-kissed white sands, swim in turquoise waters, and enjoy luxury beachside retreats with world-class water activities.',
+    highlights: [
+      'Overwater Villa or Resort Access',
+      'Snorkeling & Scuba Diving',
+      'Sunset Catamaran Cruise',
+      'Complimentary Beachside Dining'
+    ]
+  },
+  Adventure: {
+    desc: 'Embark on thrilling mountain treks, alpine skiing, aerial sports, and outdoor expeditions designed for the adventurous spirit.',
+    highlights: [
+      'Professional Expedition Guide',
+      'All Premium Adventure Gear Included',
+      'Summit Trekking or Aerial Sports',
+      'Emergency Safety Coverage'
+    ]
+  },
+  Culture: {
+    desc: 'Step back in time to explore ancient heritage sites, historic temples, vibrant traditions, and authentic regional culinary feasts.',
+    highlights: [
+      'Private Historical Walking Tour',
+      'Heritage Site Entry Passes',
+      'Authentic Local Cooking Masterclass',
+      'Cultural Performance Access'
+    ]
+  },
+  City: {
+    desc: 'Discover modern skylines, world-class shopping centers, rich nightlife, iconic architecture, and vibrant urban culture.',
+    highlights: [
+      '5-Star City Center Hotel Stay',
+      'VIP City Tour & Landmark Access',
+      'Gourmet Dining Reservations',
+      'Convenient Private City Transfers'
+    ]
+  }
+};
+
+function openExploreModal(card) {
+  if (!exploreModal) return;
+
+  const title    = card.querySelector('.card-title')?.textContent.trim() || 'Destination';
+  const location = card.querySelector('.card-location')?.textContent.trim() || '';
+  const price    = card.querySelector('.price-amount')?.textContent.trim() || '$499';
+  const rating   = card.querySelector('.card-rating span')?.textContent.trim() || '4.9';
+  const category = card.getAttribute('data-category') || 'Nature';
+  const imgSrc   = card.querySelector('.card-image')?.getAttribute('src') || '';
+
+  currentDestinationName = title;
+
+  // Set modal text & attributes
+  if (modalTitle)    modalTitle.textContent = title;
+  if (modalLocation) modalLocation.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${location}`;
+  if (modalPrice)    modalPrice.textContent = price;
+  if (modalCategory) modalCategory.textContent = category;
+  if (modalRating)   modalRating.innerHTML = `<i class="fa-solid fa-star"></i> ${rating}`;
+  if (modalImg)      modalImg.src = imgSrc;
+
+  // Set description & highlights based on category
+  const info = destinationDescriptions[category] || destinationDescriptions.Nature;
+  if (modalDesc) modalDesc.textContent = info.desc;
+
+  if (modalHighlights) {
+    modalHighlights.innerHTML = info.highlights.map(h => 
+      `<li><i class="fa-solid fa-circle-check"></i> ${h}</li>`
+    ).join('');
+  }
+
+  // Open modal
+  exploreModal.classList.add('open');
+  exploreModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeExploreModal() {
+  if (!exploreModal) return;
+  exploreModal.classList.remove('open');
+  exploreModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+// Event listeners for opening modal on card or explore button click
+document.querySelectorAll('.destination-card').forEach((card) => {
+  card.addEventListener('click', (e) => {
+    openExploreModal(card);
+  });
+});
+
+if (modalCloseBtn)  modalCloseBtn.addEventListener('click', closeExploreModal);
+if (modalOverlay)   modalOverlay.addEventListener('click', closeExploreModal);
+if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeExploreModal);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && exploreModal && exploreModal.classList.contains('open')) {
+    closeExploreModal();
+  }
+});
+
+// Book button inside modal
+if (modalBookBtn) {
+  modalBookBtn.addEventListener('click', () => {
+    closeExploreModal();
+    const destInput = document.getElementById('destination');
+    if (destInput) {
+      destInput.value = currentDestinationName;
+      destInput.focus();
+    }
+    const searchSection = document.getElementById('search');
+    if (searchSection) {
+      const navH = navbar ? navbar.offsetHeight : 80;
+      const top  = searchSection.getBoundingClientRect().top + window.scrollY - navH;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+    showToast(`📍 Destination selected: <strong>${currentDestinationName}</strong>. Choose your travel date & travelers!`, 'info', 4000);
+  });
+}
+
+/* ================================================
    DESTINATION CARD KEYBOARD ACCESSIBILITY
 ================================================ */
 destCards.forEach((card) => {
   card.addEventListener('keydown', (e) => {
-    // Allow Enter/Space to trigger the Explore link within the card
+    // Allow Enter/Space to trigger the Explore modal
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      const exploreBtn = card.querySelector('.card-btn');
-      if (exploreBtn) exploreBtn.click();
+      openExploreModal(card);
     }
   });
 });

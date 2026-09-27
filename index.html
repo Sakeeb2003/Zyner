@@ -1502,6 +1502,56 @@
     </div>
   </footer>
 
+  <!-- EXPLORE DESTINATION MODAL -->
+  <div class="explore-modal" id="explore-modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+    <div class="explore-modal-overlay" id="modal-overlay"></div>
+    <div class="explore-modal-container">
+      <button class="explore-modal-close" id="modal-close-btn" aria-label="Close modal">&times;</button>
+      <div class="explore-modal-header">
+        <div class="modal-img-wrap">
+          <img id="modal-img" src="" alt="Destination overview" class="modal-img" />
+          <div class="modal-badge-group">
+            <span class="modal-category-badge" id="modal-category">Nature</span>
+            <span class="modal-rating-badge" id="modal-rating"><i class="fa-solid fa-star"></i> 4.9</span>
+          </div>
+        </div>
+      </div>
+      <div class="explore-modal-body">
+        <div class="modal-title-wrap">
+          <div>
+            <h2 class="modal-title" id="modal-title">Ella, Sri Lanka</h2>
+            <p class="modal-location" id="modal-location"><i class="fa-solid fa-location-dot"></i> Sri Lanka, Asia</p>
+          </div>
+          <div class="modal-price-box">
+            <span class="modal-price-label">From</span>
+            <span class="modal-price-amount" id="modal-price">$299</span>
+            <span class="modal-price-unit">/ person</span>
+          </div>
+        </div>
+        <div class="modal-divider"></div>
+        <div class="modal-description-section">
+          <h3>Overview</h3>
+          <p id="modal-desc" class="modal-desc-text">Discover breathtaking destinations, curated experiences, and handpicked journeys crafted for unforgettable travel memories.</p>
+        </div>
+        <div class="modal-highlights-section">
+          <h3>Trip Highlights</h3>
+          <ul class="modal-highlights-list" id="modal-highlights">
+            <li><i class="fa-solid fa-circle-check"></i> Guided Sightseeing Tour</li>
+            <li><i class="fa-solid fa-circle-check"></i> Handpicked Accommodations</li>
+            <li><i class="fa-solid fa-circle-check"></i> Local Culinary Experiences</li>
+            <li><i class="fa-solid fa-circle-check"></i> 24/7 Travel Assistance</li>
+          </ul>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-accent modal-book-btn" id="modal-book-btn">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Book This Destination
+          </button>
+          <button type="button" class="btn btn-outline-dark modal-cancel-btn" id="modal-cancel-btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Back to Top Button -->
   <button class="back-to-top" id="back-to-top" aria-label="Back to top of page" title="Back to top">
     <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
