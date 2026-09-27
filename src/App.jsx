@@ -1,122 +1,196 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useMemo } from 'react';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import Destinations from './components/Destinations';
+import Packages from './components/Packages';
+import TripPlanner from './components/TripPlanner';
+import PackageModal from './components/PackageModal';
+import BookingModal from './components/BookingModal';
+import WhyChooseUs from './components/WhyChooseUs';
+import Gallery from './components/Gallery';
+import Testimonials from './components/Testimonials';
+import Newsletter from './components/Newsletter';
+import Footer from './components/Footer';
+import ToastNotification from './components/ToastNotification';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { DESTINATIONS } from './data/travelData';
+
+export default function App() {
+  const [currency, setCurrency] = useState('USD');
+  const [favorites, setFavorites] = useState(['dest-1', 'dest-2']);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [maxBudget, setMaxBudget] = useState(5000);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Modals state
+  const [selectedItemForModal, setSelectedItemForModal] = useState(null);
+  const [bookingModalItem, setBookingModalItem] = useState(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  // Toast notification state
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  // Toggle wishlist favorite
+  const toggleFavorite = (id) => {
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter(favId => favId !== id));
+      showToast('Removed from your saved wishlist', 'info');
+    } else {
+      setFavorites([...favorites, id]);
+      showToast('❤️ Saved to your wishlist!', 'success');
+    }
+  };
+
+  // Filtered destinations logic
+  const filteredDestinations = useMemo(() => {
+    return DESTINATIONS.filter((dest) => {
+      // Category filter
+      const matchesCategory = selectedCategory === 'All' || dest.category === selectedCategory;
+      
+      // Search term filter
+      const searchLower = searchQuery.toLowerCase().trim();
+      const matchesSearch = !searchLower || 
+        dest.title.toLowerCase().includes(searchLower) ||
+        dest.country.toLowerCase().includes(searchLower) ||
+        dest.region.toLowerCase().includes(searchLower) ||
+        dest.category.toLowerCase().includes(searchLower);
+
+      // Budget filter
+      const matchesBudget = dest.price <= maxBudget;
+
+      return matchesCategory && matchesSearch && matchesBudget;
+    });
+  }, [selectedCategory, searchQuery, maxBudget]);
+
+  const handleHeroSearchSubmit = () => {
+    const element = document.getElementById('destinations');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} antialiased selection:bg-amber-500 selection:text-slate-950 font-sans`}>
+      
+      {/* Sticky Navigation Bar */}
+      <Navbar
+        currency={currency}
+        setCurrency={setCurrency}
+        favoritesCount={favorites.length}
+        onOpenPlanner={() => {
+          const el = document.getElementById('planner');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+        onOpenBookingModal={(item) => {
+          setBookingModalItem(item);
+          setIsBookingModalOpen(true);
+        }}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+      />
 
-      <div className="ticks"></div>
+      {/* Hero Banner with Live Search */}
+      <Hero
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        maxBudget={maxBudget}
+        setMaxBudget={setMaxBudget}
+        currency={currency}
+        onSearchSubmit={handleHeroSearchSubmit}
+      />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Handpicked Global Destinations */}
+      <Destinations
+        destinations={filteredDestinations}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        currency={currency}
+        favorites={favorites}
+        toggleFavorite={toggleFavorite}
+        onSelectDestination={(dest) => setSelectedItemForModal(dest)}
+        onOpenBookingModal={(dest) => {
+          setBookingModalItem(dest);
+          setIsBookingModalOpen(true);
+        }}
+      />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Bespoke Tour Packages */}
+      <Packages
+        currency={currency}
+        onSelectPackage={(pkg) => setSelectedItemForModal(pkg)}
+        onOpenBookingModal={(pkg) => {
+          setBookingModalItem(pkg);
+          setIsBookingModalOpen(true);
+        }}
+      />
+
+      {/* AI Interactive Trip Planner */}
+      <TripPlanner
+        currency={currency}
+        onOpenBookingModal={(item) => {
+          setBookingModalItem(item);
+          setIsBookingModalOpen(true);
+        }}
+        onSelectDestination={(dest) => setSelectedItemForModal(dest)}
+      />
+
+      {/* Why Choose Zyder Feature Cards */}
+      <WhyChooseUs />
+
+      {/* Traveler Photo Gallery & Lightbox */}
+      <Gallery />
+
+      {/* Traveler Reviews & Testimonials */}
+      <Testimonials />
+
+      {/* Newsletter Promo Coupon Banner */}
+      <Newsletter showToast={showToast} />
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Rich Package / Destination Detail Modal */}
+      {selectedItemForModal && (
+        <PackageModal
+          item={selectedItemForModal}
+          onClose={() => setSelectedItemForModal(null)}
+          onBook={(item) => {
+            setSelectedItemForModal(null);
+            setBookingModalItem(item);
+            setIsBookingModalOpen(true);
+          }}
+          currency={currency}
+          favorites={favorites}
+          toggleFavorite={toggleFavorite}
+        />
+      )}
+
+      {/* Interactive Reservation Modal */}
+      {isBookingModalOpen && (
+        <BookingModal
+          item={bookingModalItem}
+          onClose={() => {
+            setIsBookingModalOpen(false);
+            setBookingModalItem(null);
+          }}
+          currency={currency}
+          showToast={showToast}
+        />
+      )}
+
+      {/* Toast Notification Alert */}
+      <ToastNotification
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
+
+    </div>
+  );
 }
-
-export default App
